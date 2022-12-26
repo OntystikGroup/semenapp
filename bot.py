@@ -4,7 +4,10 @@ from telebot.types import Message
 from config import token
 import logging
 from packed_image_editor import make_baw
+import datetime
+from tools import predict
 
+now_time = datetime.datetime.now().date()
 FORMAT = '%(asctime)s %(message)s'
 logging.basicConfig(format=FORMAT)
 logger = logging.getLogger('tcpserver')
@@ -22,12 +25,18 @@ def start(message: Message):
                           'using images and videos obtained from Sperm Chromatin Dispersion (SCD) Test.'
                           ' You just have to upload the images/videous to obtain the results of the'
                           ' test. AI is configured to images/videos obtained from 400x microscope'
-                          ' magnification. \n\nЭтот бот способен высчитывать индекс фрагментации ДНК'
+                          ' magnification. \n\n\n\nЭтот бот способен высчитывать индекс фрагментации ДНК'
                           ' сперматозоидов, используя фотографии или видеоматериалы, полученные с помощью'
                           ' теста на дисперсию хроматина сперматозоидов (SCD test). Для получения результата'
                           ' вам достаточно загрузить фотографии/видеоматериалы полученных препаратов. ИИ бота '
                           'предназначен только для анализа изображений/видеоматериалов, полученных с микроскопа '
-                          'с увеличением х400.')
+                          'с увеличением х400.'
+                          '\n\n\n\nКонтакты для связи:'
+                          '\n\nMagauiya Alikhan - orda.ezhenid@gmail.com '
+                          '\n\nZhumadil Kh.'
+                          '\n\nSarsen Sherkhan - sherkhan.sarsen@gmail.com'
+                          '\n\nDarbayev Nurdaulet - darbayevn@gmail.com'
+                     )
 
 
 @bot.message_handler(content_types=['photo'])
@@ -47,7 +56,7 @@ def download_photo(message):
         logger.info('Photo read')
 
         bot.reply_to(message, "Wait please, uploading ...")
-        make_baw(input_path=src, output_path='baw_images')
+        make_baw(input_path=src)
         output_text, percent = predict(input_model=model, img_path='baw_images/ready.jpeg')
 
         logger.info('Photo converted to BaW')
@@ -55,24 +64,12 @@ def download_photo(message):
         with open('output_images/ready.jpg', 'rb') as output_img:
             bot.send_photo(message.chat.id, output_img)
             bot.send_message(message.chat.id, output_text)
-            bot.send_message(message.chat.id, f'Percent fragmentation {round(percent*100, 2)}%')
+            bot.send_message(message.chat.id, f'Percent fragmentation {round(percent * 100, 2)}%')
 
         logger.info('Prediction completed')
     except Exception as e:
         logger.error('Appeared error: %s', str(e))
         bot.reply_to(message, 'Appeared errors, try another photo, please')
-
-
-def predict(input_model, img_path):
-    logger.info('Started detection ...')
-    result = input_model(img_path)
-    logger.info('Detection completed')
-    text, percent = result.process_text()
-    logger.info('Detection text %s', text)
-    result.save()
-    logger.info('Output photo saved')
-
-    return text, percent
 
 
 bot.polling()

@@ -1,4 +1,4 @@
-SCD Detect telegram bot
+SCD Detect telegram bot and API
 
 ---
 Download and locate *.pt(model file) on model folder(create folder "model", at the it will be like "model/best.pt").
