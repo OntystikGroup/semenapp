@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 from packed_image_editor import make_baw
 import torch
 from tools import predict
-from models import ImageData
+from modelss import ImageData
 from PIL import Image
 from io import BytesIO
 import base64
