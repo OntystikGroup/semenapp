@@ -5,12 +5,12 @@ from fastapi.responses import JSONResponse
 from packed_image_editor import make_baw
 import torch
 from tools import predict
-from api.models import ImageData
+from models import ImageData
 from PIL import Image
 from io import BytesIO
 import base64
 
-model = torch.hub.load('./', 'custom', path='./model/best.pt', source='local', force_reload=True)
+model = torch.hub.load('.', 'custom', path='model/best.pt', source='local', force_reload=True)
 app = FastAPI(debug=True, description='API convert photo by model')
 FORMAT = '%(asctime)s %(message)s'
 logging.basicConfig(format=FORMAT)
@@ -21,19 +21,19 @@ logger = logging.getLogger('tcpserver')
 async def use_model(file: UploadFile):
     global out_data
     delete()
-    file_path = getcwd() + '/api/input_photo/' + file.filename
+    file_path = getcwd() + '/input_photo/' + file.filename
     logger.info(file_path)
     with open(file_path, 'wb') as image:
         content = await file.read()
         image.write(content)
         image.close()
 
-    make_baw(input_path=file_path, output_path='api/baw_images/ready.jpeg')
+    make_baw(input_path=file_path, output_path='baw_images/ready.jpeg')
     try:
         text, output_data = predict(
             input_model=model,
-            save_dir='api/output_photo',
-            img_path='api/baw_images/ready.jpeg',
+            save_dir='output_photo',
+            img_path='baw_images/ready.jpeg',
             data=True
         )
         out_data = output_data
@@ -41,7 +41,7 @@ async def use_model(file: UploadFile):
         logger.error(e)
         return JSONResponse(status_code=422, content='Occurred error, try another file')
 
-    image = Image.open(f"{getcwd()}/api/output_photo/ready.jpg")
+    image = Image.open(f"{getcwd()}/output_photo/ready.jpg")
     img_file = BytesIO()
     image.save(img_file, format='JPEG')
     img_bytes = base64.b64encode(img_file.getvalue())
@@ -59,7 +59,7 @@ async def use_model(file: UploadFile):
 def delete():
     import os
     import shutil
-    folder = 'api/input_photo'
+    folder = 'input_photo'
     for filename in os.listdir(folder):
         file_path = os.path.join(folder, filename)
         try:
