@@ -2,15 +2,23 @@ import logging
 from os import getcwd
 from fastapi import FastAPI, UploadFile
 from fastapi.responses import JSONResponse
-from packed_image_editor import make_baw
 import torch
+<<<<<<< HEAD:main.py
 from tools import predict
 from modelss import ImageData
+=======
+from api_models import ImageData
+>>>>>>> master:api/main.py
 from PIL import Image
 from io import BytesIO
 import base64
 
+<<<<<<< HEAD:main.py
 model = torch.hub.load('.', 'custom', path='model/best.pt', source='local', force_reload=True)
+=======
+
+model = torch.hub.load('./', 'custom', path='./model/best.pt', source='local', force_reload=True)
+>>>>>>> master:api/main.py
 app = FastAPI(debug=True, description='API convert photo by model')
 FORMAT = '%(asctime)s %(message)s'
 logging.basicConfig(format=FORMAT)
