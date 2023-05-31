@@ -708,6 +708,8 @@ class Detections:
     def process_text(self, data=False):
         self.display()
         total_number = float(self.info_dict['fragmented'] + self.info_dict['normal'] + self.info_dict['fragmented_degraded'])
+        if not total_number:
+            total_number = 1
         percent = float(self.info_dict['fragmented'] + self.info_dict['fragmented_degraded']) / total_number
         if data:
             res = dict(
