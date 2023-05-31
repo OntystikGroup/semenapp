@@ -4,6 +4,9 @@ from fastapi import FastAPI, UploadFile
 from fastapi.responses import JSONResponse
 import torch
 from api.api_models import ImageData
+from api.api_tools import save_input_photo
+from api.constants import (BAW_IMAGES_FOLDER_PATH, INPUT_PHOTO_FOLDER_PATH, OUTPUT_PHOTO_FOLDER_PATH,
+                           BAW_IMAGES_FOLDER_FULL_PATH, INPUT_PHOTO_FOLDER_FULL_PATH, OUTPUT_PHOTO_FOLDER_FULL_PATH)
 from PIL import Image
 from io import BytesIO
 import base64
@@ -12,61 +15,65 @@ from tools import predict
 
 
 model = torch.hub.load('./', 'custom', path='./model/best.pt', source='local', force_reload=True)
-app = FastAPI(debug=True, description='API convert photo by model')
+app = FastAPI(debug=False, description='API convert photo by model')
 FORMAT = '%(asctime)s %(message)s'
 logging.basicConfig(format=FORMAT)
-logger = logging.getLogger('tcpserver')
+logger = logging.getLogger('logger')
+
+
+def input_photo_name():
+    folder_filenames = os.listdir('api/input_photo')
+    return folder_filenames[0]
 
 
 @app.post('/use_model', response_class=JSONResponse)
 async def use_model(file: UploadFile):
-    global out_data
-    delete()
-    file_path = getcwd() + '/api/input_photo/' + file.filename
-    logger.info(file_path)
-    with open(file_path, 'wb') as image:
-        content = await file.read()
-        image.write(content)
-        image.close()
-
-    make_baw(input_path=file_path, output_path='api/baw_images/ready.jpeg')
+    await save_input_photo(file)
+    make_baw(input_path='/' + INPUT_PHOTO_FOLDER_FULL_PATH + file.filename, output_path=BAW_IMAGES_FOLDER_FULL_PATH + file.filename)
+    output_data = dict(data=[], percent=0.0)
     try:
         text, output_data = predict(
             input_model=model,
-            save_dir='api/output_photo',
-            img_path='api/baw_images/ready.jpeg',
+            save_dir=OUTPUT_PHOTO_FOLDER_FULL_PATH,
+            img_path=BAW_IMAGES_FOLDER_FULL_PATH + file.filename,
             data=True
         )
-        out_data = output_data
+        logger.info('Prediction succeed!')
     except Exception as e:
         logger.error(e)
         return JSONResponse(status_code=422, content='Occurred error, try another file')
 
-    image = Image.open(f"{getcwd()}/api/output_photo/ready.jpg")
+    image = Image.open(f"{OUTPUT_PHOTO_FOLDER_FULL_PATH}" + file.filename)
     img_file = BytesIO()
     image.save(img_file, format='JPEG')
     img_bytes = base64.b64encode(img_file.getvalue())
 
+    delete(filename=file.filename)
+
     data = {
-        'percent': str(round(out_data['percent'] * 100, 2)) + '%',
-        'fragments': out_data['data'][0],
-        'fragmented_degradeds': out_data['data'][2],
-        'normals': out_data['data'][1],
+        'filename': file.filename,
+        'percent': str(round(output_data.get('percent') * 100, 2)) + '%',
+        'fragments': output_data['data'][0],
+        'fragmented_degradeds': output_data['data'][2],
+        'normals': output_data['data'][1],
         'img_bytes': img_bytes,
     }
     return JSONResponse(ImageData(**data).dict())
 
 
-def delete():
+def delete(filename: str):
     import os
-    import shutil
-    folder = 'api/input_photo'
-    for filename in os.listdir(folder):
-        file_path = os.path.join(folder, filename)
-        try:
-            if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-        except Exception as e:
-            logger.error('Failed to delete %s. Reason: %s' % (file_path, e))
+
+    input_file_path = os.path.join(INPUT_PHOTO_FOLDER_FULL_PATH, filename)
+    output_file_path = os.path.join(OUTPUT_PHOTO_FOLDER_FULL_PATH, filename)
+    baw_file_path = os.path.join(BAW_IMAGES_FOLDER_FULL_PATH, filename)
+
+    if os.path.exists(input_file_path):
+        os.remove(input_file_path)
+    if os.path.exists(output_file_path):
+        os.remove(output_file_path)
+
+    if os.path.exists(baw_file_path):
+        os.remove(baw_file_path)
+
+    logger.info('%s deleted from all folders', filename)

@@ -668,7 +668,14 @@ class Detections:
             normal=0,
         )
 
-    def display(self, pprint=False, show=False, save=False, crop=False, render=False, labels=True, save_dir=Path('output_images')):
+    def display(self,
+                show=False,
+                save=False,
+                crop=False,
+                render=False,
+                labels=True,
+                save_dir=Path('output_images')
+                ):
         crops = []
         for i, (im, pred) in enumerate(zip(self.imgs, self.pred)):
             s = f'image {i + 1}/{len(self.pred)}: {im.shape[0]}x{im.shape[1]} '  # string

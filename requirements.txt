@@ -34,15 +34,6 @@ seaborn>=0.11.2
 # tensorflowjs>=3.9.0  # TF.js export
 # openvino-dev  # OpenVINO export
 
-# Extras --------------------------------------
-ipython  # interactive notebook
-psutil  # system utilization
-thop>=0.1.1.post2207130030
-# albumentations>=1.0.3
-# pycocotools>=2.0  # COCO mAP
-# roboflow
-pytelegrambotapi>=4.7.0
-
 fastapi~=0.79.1
 uvicorn~=0.18.2
 pydantic~=1.9.2

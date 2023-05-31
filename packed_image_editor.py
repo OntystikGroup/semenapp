@@ -1,7 +1,10 @@
+import os
+
 from PIL import Image, ImageEnhance
 
 
 def make_baw(input_path='datasets/Semen-1/images/312312.jpg', output_path='baw_images/ready.jpeg'):
+    input_path = os.getcwd() + input_path
     img = Image.open(input_path)
     contrast = ImageEnhance.Contrast(img)
     r = contrast.enhance(1.5)
