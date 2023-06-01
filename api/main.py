@@ -40,7 +40,8 @@ async def use_model(file: UploadFile):
         logger.info('Prediction succeed!')
     except Exception as e:
         logger.error(e)
-        return JSONResponse(status_code=422, content='Occurred error, try another file')
+        file_format = '.' + file.filename.split('.')[-1]
+        return JSONResponse(status_code=422, content=f'Occurred error with {file_format}, try another file format')
 
     image = Image.open(f"{OUTPUT_PHOTO_FOLDER_FULL_PATH}" + file.filename)
     img_file = BytesIO()
