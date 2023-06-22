@@ -2,6 +2,7 @@ import logging
 import os
 from fastapi import FastAPI, UploadFile
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from packed_image_editor import make_baw
 import torch
 from tools import predict
@@ -15,6 +16,13 @@ import base64
 
 model = torch.hub.load('./', 'custom', path='./model/best.pt', source='local', force_reload=True)
 app = FastAPI(debug=False, description='API convert photo by model')
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_credentials=True,
+    allow_methods=['*'],
+    allow_headers=['*']
+)
 FORMAT = '%(asctime)s %(message)s'
 logging.basicConfig(format=FORMAT)
 logger = logging.getLogger('logger')
