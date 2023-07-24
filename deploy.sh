@@ -16,8 +16,6 @@ gdown https://drive.google.com/uc?id=1EyY-aCaAt5xzwuCF98Zr-m_pu8fB3GvU
 pip install python-multipart
 sudo ufw allow 8001
 
-sudo nano /etc/systemd/system/semenapp.service
-
 sudo cp semenapp.service /etc/systemd/system/
 
 sudo systemctl start semenapp
