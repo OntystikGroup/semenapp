@@ -1,3 +1,4 @@
+#!/bin/bash
 sudo apt update
 sudo apt install python3-pip python3-dev build-essential libssl-dev libffi-dev python3-setuptools
 
@@ -16,9 +17,11 @@ gdown https://drive.google.com/uc?id=1EyY-aCaAt5xzwuCF98Zr-m_pu8fB3GvU
 pip install python-multipart
 sudo ufw allow 8001
 
-sudo cp semenapp.service /etc/systemd/system/
+sudo cp /root/projects/semenapp/semenapp.service /etc/systemd/system/
 
 sudo systemctl start semenapp
 sudo systemctl enable semenapp
+sudo systemctl daemon-reload
+sudo systemctl restart semenapp
 
 sudo systemctl status semenapp
