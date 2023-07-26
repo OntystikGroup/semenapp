@@ -5,6 +5,12 @@ Download and locate *.pt(model file) on model folder(create folder "model", at t
 **Link for model(google drive)**
 https://drive.google.com/drive/folders/1edhleNQE2OEPg6WuC1LrSgrdA_XqVfBT?usp=sharing
 
+---
+To start and deploy project
+
+`sudo chmod +x deploy.sh`
+
+`./deploy.sh`
 
 ---
 Docker down:
